@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Bills • Manage Bills</title>
+  <style>
+    :root{
+      --sky:#bfe6ff;
+      --sky2:#eaf7ff;
+      --sun:#ffe38a;
+      --orange:#ffb35c;
+      --ink:#0f172a;
+      --muted:#475569;
+      --card: rgba(255,255,255,.72);
+      --card2: rgba(255,255,255,.86);
+      --stroke: rgba(15,23,42,.12);
+      --shadow: 0 18px 50px rgba(15,23,42,.12);
+      --shadow2: 0 10px 24px rgba(15,23,42,.12);
+      --radius: 18px;
+      --radius2: 14px;
+      --focus: 0 0 0 4px rgba(56,189,248,.25), 0 0 0 1px rgba(56,189,248,.35);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(191,230,255,.95), rgba(191,230,255,0) 60%),
+        radial-gradient(900px 520px at 80% 15%, rgba(255,227,138,.85), rgba(255,227,138,0) 60%),
+        radial-gradient(900px 520px at 75% 85%, rgba(255,179,92,.65), rgba(255,179,92,0) 65%),
+        linear-gradient(180deg, #f7fcff 0%, #fff8e6 55%, #fff4ea 100%);
+      overflow-x:hidden;
+    }
+
+    .noise{
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="140" height="140" filter="url(%23n)" opacity=".06"/></svg>');
+      mix-blend-mode:multiply;
+      opacity:.35;
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:28px 18px 44px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      padding:18px 18px 16px;
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.55));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      min-width: 260px;
+    }
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background:
+        radial-gradient(16px 16px at 30% 25%, rgba(255,255,255,.9), rgba(255,255,255,0) 70%),
+        linear-gradient(135deg, rgba(56,189,248,.9), rgba(255,227,138,.85), rgba(255,179,92,.85));
+      box-shadow: 0 12px 26px rgba(15,23,42,.16);
+      border: 1px solid rgba(255,255,255,.75);
+    }
+    h1{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+      line-height:1.2;
+    }
+    .sub{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      max-width:56ch;
+    }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+      padding-top:2px;
+    }
+
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.75);
+      box-shadow: 0 10px 20px rgba(15,23,42,.08);
+      color:var(--muted);
+      font-size:13px;
+      user-select:none;
+    }
+    .dot{
+      width:9px;height:9px;border-radius:999px;
+      background:#94a3b8;
+      box-shadow: 0 0 0 3px rgba(148,163,184,.2);
+    }
+    .dot.ok{background:#22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.18)}
+    .dot.warn{background:#f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.20)}
+    .dot.bad{background:#ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.18)}
+
+    .btn{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.78);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-weight: 650;
+      font-size: 13px;
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+      box-shadow: 0 12px 22px rgba(15,23,42,.10);
+      display:inline-flex; align-items:center; gap:8px;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px); box-shadow: 0 18px 30px rgba(15,23,42,.14)}
+    .btn:active{transform: translateY(0px); box-shadow: 0 10px 18px rgba(15,23,42,.10)}
+    .btn:focus{outline:none; box-shadow: var(--focus), 0 18px 30px rgba(15,23,42,.14)}
+    .btn.primary{
+      border-color: rgba(2,132,199,.22);
+      background: linear-gradient(135deg, rgba(56,189,248,.25), rgba(255,227,138,.22), rgba(255,179,92,.22));
+    }
+    .btn.danger{
+      border-color: rgba(239,68,68,.22);
+      background: rgba(254,242,242,.86);
+      color:#991b1b;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:16px;
+      margin-top:16px;
+    }
+
+    .panel{
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.55));
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .panel-head{
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid rgba(15,23,42,.08);
+      background: linear-gradient(180deg, rgba(234,247,255,.65), rgba(255,255,255,0));
+    }
+    .panel-title{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 760;
+      letter-spacing:.2px;
+    }
+    .badge{
+      font-size:12px;
+      font-weight:700;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.75);
+      color: var(--muted);
+    }
+
+    .panel-body{ padding: 14px 16px 16px; }
+
+    .controls{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+    .control{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    label{
+      font-size:12px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    input, select, textarea{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(15,23,42,.14);
+      background: rgba(255,255,255,.80);
+      font-size:14px;
+      color: var(--ink);
+      box-shadow: 0 10px 18px rgba(15,23,42,.06);
+      transition: box-shadow .12s ease, border-color .12s ease, background .12s ease;
+    }
+    textarea{min-height:88px; resize:vertical}
+    input:focus, select:focus, textarea:focus{outline:none; box-shadow: var(--focus); border-color: rgba(56,189,248,.45); background: rgba(255,255,255,.92)}
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom: 8px;
+    }
+    .search{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex: 1;
+      min-width: 260px;
+    }
+    .search input{flex:1}
+    .hint{
+      font-size:12px;
+      color: var(--muted);
+      margin-top:6px;
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .group{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius: 16px;
+      background: rgba(255,255,255,.70);
+      overflow:hidden;
+    }
+    .group-head{
+      padding: 10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      background: linear-gradient(90deg, rgba(191,230,255,.38), rgba(255,227,138,.26), rgba(255,179,92,.20));
+      border-bottom:1px solid rgba(15,23,42,.08);
+    }
+    .group-head .date{
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing:.2px;
+    }
+    .group-head .sum{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      white-space:nowrap;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1.3fr .7fr .8fr auto;
+      gap:10px;
+      align-items:center;
+      padding: 12px;
+      border-top:1px solid rgba(15,23,42,.06);
+      background: rgba(255,255,255,.72);
+    }
+    .row:first-child{border-top:none}
+    .cell-title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .customer{
+      font-weight: 800;
+      font-size: 14px;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .meta{
+      font-size: 12px;
+      color: var(--muted);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .amount{
+      font-weight: 900;
+      text-align:right;
+      letter-spacing:.2px;
+    }
+    .status{
+      font-size:12px;
+      font-weight:800;
+      padding:6px 10px;
+      border-radius:999px;
+      width: fit-content;
+      border:1px solid rgba(15,23,42,.12);
+      background: rgba(234,247,255,.65);
+      color:#075985;
+      justify-self:start;
+    }
+    .actions{
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+    }
+    .iconbtn{
+      border:1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.82);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(15,23,42,.08);
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+      font-weight:800;
+      color: var(--ink);
+      font-size: 13px;
+    }
+    .iconbtn:hover{transform: translateY(-1px); box-shadow: 0 16px 26px rgba(15,23,42,.12)}
+    .iconbtn:focus{outline:none; box-shadow: var(--focus), 0 16px 26px rgba(15,23,42,.12)}
+    .iconbtn.danger{color:#991b1b; background: rgba(254,242,242,.88); border-color: rgba(239,68,68,.18)}
+
+    .empty{
+      padding: 18px 14px;
+      border:1px dashed rgba(15,23,42,.18);
+      border-radius: 16px;
+      background: rgba(255,255,255,.62);
+      color: var(--muted);
+      text-align:center;
+    }
+
+    .side{
+      position:sticky;
+      top:16px;
+      align-self:start;
+    }
+
+    .kpi{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-bottom: 12px;
+    }
+    .kpi .box{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius: 16px;
+      background: rgba(255,255,255,.74);
+      padding: 12px;
+      box-shadow: 0 12px 24px rgba(15,23,42,.08);
+    }
+    .kpi .label{font-size:12px; color: var(--muted); font-weight:700}
+    .kpi .value{margin-top:4px; font-size:18px; font-weight:900; letter-spacing:.2px}
+    .kpi .mini{margin-top:2px; font-size:12px; color: var(--muted); font-weight:650}
+
+    .editor{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius: 16px;
+      background: rgba(255,255,255,.74);
+      padding: 12px;
+      box-shadow: 0 12px 24px rgba(15,23,42,.08);
+    }
+    .editor h3{
+      margin:0 0 10px;
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+    .row2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .row1{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    .editor-actions{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+
+    .footnote{
+      margin-top:12px;
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.45;
+    }
+
+    @media (max-width: 980px){
+      .grid{grid-template-columns: 1fr}
+      .side{position:relative; top:auto}
+    }
+    @media (max-width: 620px){
+      header{flex-direction:column}
+      .controls{grid-template-columns: 1fr}
+      .row{grid-template-columns: 1.2fr .8fr auto; grid-template-areas:
+        "title amount actions"
+        "status status actions";
+      }
+      .cell-title{grid-area:title}
+      .amount{grid-area:amount}
+      .actions{grid-area:actions}
+      .status{grid-area:status}
+      .kpi{grid-template-columns: 1fr}
+      .row2{grid-template-columns: 1fr}
+      .brand{min-width:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>All Bills</h1>
+          <div class="sub">View bills date-wise, quickly search, and edit or delete saved bills stored in Firebase Firestore.</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="pill" title="Firestore connection status">
+          <span id="connDot" class="dot warn"></span>
+          <span id="connText">Connecting…</span>
+        </div>
+        <button class="btn primary" id="refreshBtn" type="button" title="Reload bills">
+          <span aria-hidden="true">⟳</span> Refresh
+        </button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <span>Saved Bills</span>
+            <span class="badge" id="countBadge">0</span>
+          </div>
+
+          <div class="toolbar" style="margin:0; padding:0; border:0; box-shadow:none; background:none;">
+            <div class="search">
+              <input id="searchInput" type="text" placeholder="Search customer, amount, notes, date…" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="controls" aria-label="Filters">
+            <div class="control">
+              <label for="dateFilter">Filter by date</label>
+              <input id="dateFilter" type="date" />
+            </div>
+            <div class="control">
+              <label for="sortSelect">Sort</label>
+              <select id="sortSelect">
+                <option value="date_desc">Date: Newest first</option>
+                <option value="date_asc">Date: Oldest first</option>
+                <option value="amount_desc">Amount: High to low</option>
+                <option value="amount_asc">Amount: Low to high</option>
+                <option value="customer_asc">Customer: A → Z</option>
+                <option value="customer_desc">Customer: Z → A</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="hint">Tip: Click <b>Edit</b> on a bill to update it; click <b>Delete</b> to remove it permanently.</div>
+
+          <div id="data" class="list" style="margin-top:12px;"></div>
+
+          <div id="emptyState" class="empty" style="display:none; margin-top:12px;">
+            No bills found for your current filters.
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span>Overview</span>
+              <span class="badge" id="todayBadge">Today</span>
+            </div>
+            <button class="btn" id="clearFiltersBtn" type="button" title="Clear search and filters">
+              <span aria-hidden="true">✕</span> Clear
+            </button>
+          </div>
+          <div class="panel-body">
+            <div class="kpi">
+              <div class="box">
+                <div class="label">Total bills (shown)</div>
+                <div class="value" id="kpiCount">0</div>
+                <div class="mini" id="kpiCountMini">Across all dates</div>
+              </div>
+              <div class="box">
+                <div class="label">Total amount (shown)</div>
+                <div class="value" id="kpiTotal">₹0</div>
+                <div class="mini" id="kpiTotalMini">Sum of filtered results</div>
+              </div>
+            </div>
+
+            <div class="editor" aria-label="Editor">
+              <h3 id="editorTitle">Edit Bill</h3>
+
+              <div class="row2">
+                <div class="control">
+                  <label for="editCustomer">Customer</label>
+                  <input id="editCustomer" type="text" placeholder="Customer name" />
+                </div>
+                <div class="control">
+                  <label for="editAmount">Amount (₹)</label>
+                  <input id="editAmount" type="number" min="0" step="0.01" placeholder="0.00" />
+                </div>
+              </div>
+
+              <div class="row2" style="margin-top:10px;">
+                <div class="control">
+                  <label for="editDate">Date</label>
+                  <input id="editDate" type="date" />
+                </div>
+                <div class="control">
+                  <label for="editStatus">Status</label>
+                  <select id="editStatus">
+                    <option value="Saved">Saved</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row1" style="margin-top:10px;">
+                <div class="control">
+                  <label for="editNotes">Notes</label>
+                  <textarea id="editNotes" placeholder="Optional notes…"></textarea>
+                </div>
+              </div>
+
+              <div class="editor-actions">
+                <button class="btn" id="cancelEditBtn" type="button">Cancel</button>
+                <button class="btn primary" id="saveEditBtn" type="button">Save changes</button>
+                <button class="btn danger" id="deleteFromEditorBtn" type="button" title="Delete selected bill">Delete</button>
+              </div>
+
+              <div class="footnote" id="editorHint">
+                Select a bill to edit. Changes will be saved back to <b>Firestore</b> (collection: <b>bills</b>).
+              </div>
+            </div>
+
+            <div class="footnote">
+              Data is stored date-wise using a <b>date</b> field (YYYY-MM-DD). If a bill has no date, it will appear under <b>Unknown date</b>.
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, doc, updateDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBhSGWq8LiC3WR2olbokI_l0XkoVR6H_KY",
+  authDomain: "account-billing-7472a.firebaseapp.com",
+  projectId: "account-billing-7472a",
+  storageBucket: "account-billing-7472a.firebasestorage.app",
+  messagingSenderId: "640274779253",
+  appId: "1:640274779253:web:e04e38d2fd9dede2883c3c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const el = (id) => document.getElementById(id);
+
+const state = {
+  all: [],
+  filtered: [],
+  selectedId: null,
+};
+
+function setConn(status, text){
+  const dot = el("connDot");
+  const label = el("connText");
+  dot.classList.remove("ok","warn","bad");
+  dot.classList.add(status);
+  label.textContent = text;
+}
+
+function escapeHtml(s=""){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function normalizeAmount(v){
+  if (v === null || v === undefined || v === "") return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function toISODate(value){
+  if(!value) return "";
+  if (typeof value === "string"){
+    // accept 'YYYY-MM-DD' or ISO
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0,10);
+  }
+  // Firestore Timestamp
+  if (typeof value === "object" && typeof value.toDate === "function"){
+    const d = value.toDate();
+    return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0,10);
+  }
+  return "";
+}
+
+function formatMoneyINR(n){
+  const val = Number(n) || 0;
+  try{
+    return new Intl.NumberFormat("en-IN", { style:"currency", currency:"INR", maximumFractionDigits: 2 }).format(val);
+  }catch{
+    return "₹" + val.toFixed(2);
+  }
+}
+
+function getSortKey(sort){
+  switch(sort){
+    case "date_asc": return (a,b) => (a._dateKey - b._dateKey) || (b._amount - a._amount);
+    case "amount_desc": return (a,b) => (b._amount - a._amount) || (b._dateKey - a._dateKey);
+    case "amount_asc": return (a,b) => (a._amount - b._amount) || (b._dateKey - a._dateKey);
+    case "customer_asc": return (a,b) => a._customerKey.localeCompare(b._customerKey) || (b._dateKey - a._dateKey);
+    case "customer_desc": return (a,b) => b._customerKey.localeCompare(a._customerKey) || (b._dateKey - a._dateKey);
+    case "date_desc":
+    default: return (a,b) => (b._dateKey - a._dateKey) || (b._amount - a._amount);
+  }
+}
+
+function computeDerived(b){
+  const iso = toISODate(b.date);
+  const dateKey = iso ? new Date(iso + "T00:00:00").getTime() : -Infinity;
+  const amount = normalizeAmount(b.amount);
+  const customer = (b.customer ?? "").toString();
+  const status = (b.status ?? "Saved").toString();
+  const notes = (b.notes ?? "").toString();
+  return {
+    ...b,
+    _isoDate: iso,
+    _dateKey: dateKey,
+    _amount: amount,
+    _customerKey: customer.trim().toLowerCase(),
+    _search: (customer + " " + amount + " " + status + " " + notes + " " + iso).trim().toLowerCase()
+  };
+}
+
+function applyFilters(){
+  const q = el("searchInput").value.trim().toLowerCase();
+  const df = el("dateFilter").value;
+  const sort = el("sortSelect").value;
+
+  let list = [...state.all];
+
+  if (df){
+    list = list.filter(b => (b._isoDate || "") === df);
+  }
+  if (q){
+    list = list.filter(b => b._search.includes(q));
+  }
+
+  list.sort(getSortKey(sort));
+
+  state.filtered = list;
+  render();
+}
+
+function groupByDate(list){
+  const map = new Map();
+  for (const b of list){
+    const key = b._isoDate || "Unknown date";
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(b);
+  }
+  // sort group keys based on date
+  const keys = [...map.keys()].sort((a,b)=>{
+    if (a === "Unknown date" && b === "Unknown date") return 0;
+    if (a === "Unknown date") return 1;
+    if (b === "Unknown date") return -1;
+    return new Date(b).getTime() - new Date(a).getTime();
+  });
+  return keys.map(k => ({ date: k, items: map.get(k) }));
+}
+
+function updateKPIs(){
+  el("countBadge").textContent = String(state.filtered.length);
+  el("kpiCount").textContent = String(state.filtered.length);
+  const total = state.filtered.reduce((sum,b)=> sum + (Number(b._amount)||0), 0);
+  el("kpiTotal").textContent = formatMoneyINR(total);
+
+  const today = new Date().toISOString().slice(0,10);
+  el("todayBadge").textContent = "Today: " + today;
+}
+
+function render(){
+  const container = el("data");
+  container.innerHTML = "";
+
+  updateKPIs();
+
+  if (!state.filtered.length){
+    el("emptyState").style.display = "block";
+    return;
+  }
+  el("emptyState").style.display = "none";
+
+  const groups = groupByDate(state.filtered);
+
+  for (const g of groups){
+    const sum = g.items.reduce((s,b)=> s + (Number(b._amount)||0), 0);
+
+    const group = document.createElement("div");
+    group.className = "group";
+
+    const head = document.createElement("div");
+    head.className = "group-head";
+    head.innerHTML = `
+      <div class="date">${escapeHtml(g.date)}</div>
+      <div class="sum">${escapeHtml(g.items.length)} bill(s) • <b>${escapeHtml(formatMoneyINR(sum))}</b></div>
+    `;
+    group.appendChild(head);
+
+    for (const b of g.items){
+      const row = document.createElement("div");
+      row.className = "row";
+      const status = (b.status ?? "Saved").toString();
+
+      row.innerHTML = `
+        <div class="cell-title">
+          <div class="customer" title="${escapeHtml(b.customer ?? "")}">${escapeHtml(b.customer ?? "—")}</div>
+          <div class="meta" title="${escapeHtml(b.notes ?? "")}">${escapeHtml(b.notes ?? "") || "No notes"}</div>
+        </div>
+        <div class="amount">${escapeHtml(formatMoneyINR(b._amount))}</div>
+        <div class="status" title="Status">${escapeHtml(status)}</div>
+        <div class="actions">
+          <button class="iconbtn" data-action="edit" data-id="${escapeHtml(b.id)}" type="button" title="Edit this bill">Edit</button>
+          <button class="iconbtn danger" data-action="delete" data-id="${escapeHtml(b.id)}" type="button" title="Delete this bill">Delete</button>
+        </div>
+      `;
+      group.appendChild(row);
+    }
+
+    container.appendChild(group);
+  }
+}
+
+function setEditorEnabled(enabled){
+  const inputs = ["editCustomer","editAmount","editDate","editStatus","editNotes"];
+  for (const id of inputs) el(id).disabled = !enabled;
+  el("saveEditBtn").disabled = !enabled;
+  el("cancelEditBtn").disabled = !enabled;
+  el("deleteFromEditorBtn").disabled = !enabled;
+  el("editorTitle").textContent = enabled ? "Edit Bill" : "Edit Bill";
+}
+
+function clearEditor(){
+  state.selectedId = null;
+  el("editCustomer").value = "";
+  el("editAmount").value = "";
+  el("editDate").value = "";
+  el("editStatus").value = "Saved";
+  el("editNotes").value = "";
+  el("editorHint").innerHTML = `Select a bill to edit. Changes will be saved back to <b>Firestore</b> (collection: <b>bills</b>).`;
+  setEditorEnabled(false);
+}
+
+function fillEditor(b){
+  state.selectedId = b.id;
+  el("editCustomer").value = b.customer ?? "";
+  el("editAmount").value = (b.amount ?? "") === "" ? "" : String(normalizeAmount(b.amount));
+  el("editDate").value = b._isoDate || "";
+  el("editStatus").value = (b.status ?? "Saved").toString();
+  el("editNotes").value = b.notes ?? "";
+  el("editorHint").innerHTML = `Editing bill <b>${escapeHtml(b.id)}</b>.`;
+  setEditorEnabled(true);
+}
+
+async function load(){
+  try{
+    setConn("warn","Loading…");
+    const snapshot = await getDocs(collection(db, "bills"));
+    const list = [];
+    snapshot.forEach(d => {
+      const data = d.data();
+      list.push(computeDerived({ id: d.id, ...data }));
+    });
+    state.all = list;
+    setConn("ok","Connected");
+    applyFilters();
+    // if selected item disappeared
+    if (state.selectedId && !state.all.some(x => x.id === state.selectedId)){
+      clearEditor();
+    }
+  }catch(err){
+    console.error(err);
+    setConn("bad","Connection error");
+    el("data").innerHTML = `<div class="empty">Failed to load bills. Check Firebase rules / network and try Refresh.</div>`;
+    el("emptyState").style.display = "none";
+  }
+}
+
+async function saveSelected(){
+  if (!state.selectedId) return;
+  const id = state.selectedId;
+
+  const customer = el("editCustomer").value.trim();
+  const amountRaw = el("editAmount").value;
+  const amount = normalizeAmount(amountRaw);
+  const date = el("editDate").value; // YYYY-MM-DD
+  const status = el("editStatus").value;
+  const notes = el("editNotes").value.trim();
+
+  if (!customer){
+    alert("Please enter a customer name.");
+    el("editCustomer").focus();
+    return;
+  }
+  if (!Number.isFinite(amount) || amount < 0){
+    alert("Please enter a valid amount (0 or more).");
+    el("editAmount").focus();
+    return;
+  }
+
+  try{
+    setConn("warn","Saving…");
+    await updateDoc(doc(db, "bills", id), {
+      customer,
+      amount,
+      date: date || null,
+      status,
+      notes: notes || ""
+    });
+    setConn("ok","Saved");
+    await load();
+    // keep editor filled with latest
+    const updated = state.all.find(x => x.id === id);
+    if (updated) fillEditor(updated);
+  }catch(err){
+    console.error(err);
+    setConn("bad","Save failed");
+    alert("Failed to save changes. Check Firestore permissions and try again.");
+  }
+}
+
+async function deleteById(id){
+  if (!id) return;
+  const b = state.all.find(x => x.id === id);
+  const label = b ? `${b.customer ?? "this bill"} (${formatMoneyINR(b._amount)})` : "this bill";
+  const ok = confirm(`Delete ${label}? This cannot be undone.`);
+  if (!ok) return;
+
+  try{
+    setConn("warn","Deleting…");
+    await deleteDoc(doc(db, "bills", id));
+    setConn("ok","Deleted");
+    if (state.selectedId === id) clearEditor();
+    await load();
+  }catch(err){
+    console.error(err);
+    setConn("bad","Delete failed");
+    alert("Failed to delete bill. Check Firestore permissions and try again.");
+  }
+}
+
+el("data").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+
+  if (action === "edit"){
+    const b = state.all.find(x => x.id === id);
+    if (b) fillEditor(b);
+    return;
+  }
+  if (action === "delete"){
+    deleteById(id);
+    return;
+  }
+});
+
+el("saveEditBtn").addEventListener("click", saveSelected);
+el("deleteFromEditorBtn").addEventListener("click", ()

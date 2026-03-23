@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Sign In</title>
+  <style>
+    :root{
+      --blue1:#dff2ff;
+      --blue2:#a7dcff;
+      --orange:#ff8a3d;
+      --orange2:#ffb86b;
+      --yellow:#ffe08a;
+      --ink:#0b1b2a;
+      --muted:#5a6a79;
+      --card: rgba(255,255,255,.78);
+      --card2: rgba(255,255,255,.6);
+      --shadow: 0 24px 70px rgba(10,30,60,.20);
+      --ring: 0 0 0 4px rgba(40,140,255,.20);
+      --danger:#e53935;
+      --ok:#0f8a5f;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:
+        radial-gradient(900px 700px at 15% 20%, rgba(255, 224, 138,.75) 0%, rgba(255,224,138,0) 55%),
+        radial-gradient(900px 700px at 85% 35%, rgba(255, 138, 61,.35) 0%, rgba(255,138,61,0) 60%),
+        radial-gradient(1000px 800px at 50% 110%, rgba(167, 220, 255,.70) 0%, rgba(167,220,255,0) 55%),
+        linear-gradient(140deg, var(--blue1) 0%, #f7fbff 35%, #fff7e7 70%, #fff2df 100%);
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:28px 16px;
+    }
+
+    .shell{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:18px;
+      align-items:stretch;
+    }
+
+    @media (max-width: 900px){
+      .shell{grid-template-columns:1fr; width:min(520px,100%);}
+    }
+
+    .panel{
+      border-radius:22px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.55));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,.55);
+    }
+
+    /* Left: brand/illustration */
+    .brand{
+      padding:26px 26px 22px;
+      background:
+        radial-gradient(900px 500px at 15% 20%, rgba(255,224,138,.70) 0%, rgba(255,224,138,0) 55%),
+        radial-gradient(900px 650px at 85% 30%, rgba(255,138,61,.30) 0%, rgba(255,138,61,0) 60%),
+        radial-gradient(1200px 900px at 50% 120%, rgba(167,220,255,.65) 0%, rgba(167,220,255,0) 60%),
+        linear-gradient(160deg, rgba(255,255,255,.70), rgba(255,255,255,.45));
+      min-height: 520px;
+    }
+
+    .brandTop{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background: conic-gradient(from 220deg, var(--orange), var(--yellow), var(--blue2), var(--orange2), var(--orange));
+      box-shadow: 0 14px 35px rgba(255,138,61,.25);
+      position:relative;
+      isolation:isolate;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:9px;
+      border-radius:10px;
+      background: rgba(255,255,255,.70);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+      z-index:-1;
+      filter: blur(.2px);
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+      line-height:1.1;
+    }
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .hero{
+      margin-top:22px;
+      padding:18px 18px 16px;
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.35));
+      border:1px solid rgba(255,255,255,.55);
+    }
+
+    .heroTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .heroTitle h2{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+    }
+
+    .badge{
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.7);
+      border:1px solid rgba(255,255,255,.7);
+      color:#2a3a4a;
+      box-shadow: 0 10px 28px rgba(10,30,60,.10);
+      white-space:nowrap;
+    }
+
+    .features{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:14px;
+    }
+    .feat{
+      border-radius:16px;
+      padding:12px 12px;
+      background: rgba(255,255,255,.55);
+      border:1px solid rgba(255,255,255,.55);
+      position:relative;
+      overflow:hidden;
+    }
+    .feat:before{
+      content:"";
+      position:absolute;
+      width:160px;height:160px;
+      right:-90px; top:-95px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,138,61,.30), rgba(255,138,61,0) 70%);
+      transform: rotate(18deg);
+    }
+    .feat h3{margin:0 0 6px; font-size:13px; letter-spacing:.2px;}
+    .feat p{margin:0; color:var(--muted); font-size:12px; line-height:1.35;}
+
+    .wave{
+      margin-top:16px;
+      border-radius:18px;
+      padding:14px;
+      background: linear-gradient(135deg, rgba(167,220,255,.55), rgba(255,224,138,.40), rgba(255,138,61,.18));
+      border:1px solid rgba(255,255,255,.45);
+      position:relative;
+      overflow:hidden;
+      min-height:140px;
+    }
+
+    .orbs{
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.85;
+      filter: blur(.2px);
+    }
+    .orb{
+      position:absolute;
+      border-radius:999px;
+      mix-blend-mode: multiply;
+      opacity:.55;
+      filter: blur(1px);
+    }
+    .orb.o1{width:160px;height:160px; left:18px; top:22px; background: rgba(255,224,138,.95);}
+    .orb.o2{width:210px;height:210px; right:-30px; top:-50px; background: rgba(167,220,255,.95);}
+    .orb.o3{width:140px;height:140px; right:65px; bottom:-40px; background: rgba(255,138,61,.75);}
+
+    .wave .copy{
+      position:relative;
+      z-index:1;
+    }
+    .wave .copy strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:6px;
+      letter-spacing:.2px;
+    }
+    .wave .copy span{
+      color:#2b3b4b;
+      font-size:12.5px;
+      line-height:1.45;
+      display:block;
+      max-width: 52ch;
+    }
+
+    /* Right: form */
+    .form{
+      padding:26px;
+      background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.60));
+      min-height: 520px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:14px;
+    }
+
+    .formHeader{
+      margin-bottom:6px;
+    }
+    .formHeader h2{
+      margin:0;
+      font-size:26px;
+      letter-spacing:.2px;
+    }
+    .formHeader p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    label{
+      font-size:12px;
+      color:#2a3a4a;
+      letter-spacing:.2px;
+    }
+
+    .inputWrap{
+      position:relative;
+    }
+
+    input{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(20,40,60,.12);
+      background: rgba(255,255,255,.75);
+      outline:none;
+      font-size:14px;
+      color:var(--ink);
+      transition: box-shadow .2s ease, border-color .2s ease, transform .1s ease;
+    }
+    input:focus{
+      border-color: rgba(40,140,255,.35);
+      box-shadow: var(--ring);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+      user-select:none;
+    }
+
+    .chk{
+      width:16px;height:16px;
+      border-radius:5px;
+      border:1px solid rgba(20,40,60,.18);
+      background: rgba(255,255,255,.8);
+      display:inline-grid;
+      place-items:center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+    }
+    .chk svg{display:none}
+    input[type="checkbox"]{display:none}
+    input[type="checkbox"]:checked + .chk svg{display:block}
+
+    .btn{
+      width:100%;
+      border:none;
+      border-radius:16px;
+      padding:12px 14px;
+      font-size:14px;
+      font-weight:700;
+      letter-spacing:.2px;
+      cursor:pointer;
+      color:#1b2430;
+      background: linear-gradient(135deg, rgba(255,224,138,1) 0%, rgba(255,184,107,1) 45%, rgba(255,138,61,1) 100%);
+      box-shadow: 0 18px 45px rgba(255,138,61,.25);
+      transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+      margin-top:8px;
+    }
+    .btn:hover{filter: brightness(1.02)}
+    .btn:active{transform: translateY(1px); box-shadow: 0 12px 30px rgba(255,138,61,.22);}
+
+    .msg{
+      border-radius:14px;
+      padding:10px 12px;
+      font-size:12.5px;
+      line-height:1.35;
+      background: rgba(255,255,255,.70);
+      border:1px solid rgba(255,255,255,.75);
+      color:#2a3a4a;
+    }
+    .msg.ok{border-color: rgba(15,138,95,.25); background: rgba(15,138,95,.08); color: #0d5e41;}
+    .msg.bad{border-color: rgba(229,57,53,.25); background: rgba(229,57,53,.08); color: #7a1c1a;}
+    .msg.neutral{border-color: rgba(40,140,255,.20); background: rgba(40,140,255,.06); color: #1d3e66;}
+
+    .securityBox{
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.65);
+      background: rgba(255,255,255,.55);
+      padding:12px;
+      margin-top:2px;
+    }
+
+    .keyRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:8px;
+      flex-wrap:wrap;
+    }
+
+    .keyChip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(167,220,255,.35);
+      border:1px solid rgba(40,140,255,.20);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      color:#173451;
+    }
+    .smallBtn{
+      border:none;
+      border-radius:12px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:700;
+      color:#173451;
+      background: rgba(255,255,255,.78);
+      border:1px solid rgba(20,40,60,.12);
+      transition: transform .12s ease, box-shadow .2s ease;
+      box-shadow: 0 10px 26px rgba(10,30,60,.10);
+    }
+    .smallBtn:active{transform: translateY(1px); box-shadow: 0 8px 18px rgba(10,30,60,.10);}
+
+    .foot{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:11.5px;
+      line-height:1.45;
+    }
+    .sep{
+      height:1px;
+      background: linear-gradient(90deg, rgba(20,40,60,0), rgba(20,40,60,.10), rgba(20,40,60,0));
+      margin:8px 0 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="shell">
+      <section class="panel brand" aria-label="Welcome panel">
+        <div class="brandTop">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Secure Admin Portal</h1>
+            <p>Light-blue calm, with warm yellow & orange accents.</p>
+          </div>
+        </div>
+
+        <div class="hero">
+          <div class="heroTitle">
+            <h2>Sign in with extra protection</h2>
+            <div class="badge">Security Key Enabled</div>
+          </div>
+          <div class="features">
+            <div class="feat">
+              <h3>Relaxing UI</h3>
+              <p>Soft gradients and glass-like cards designed for focus.</p>
+            </div>
+            <div class="feat">
+              <h3>Security Key</h3>
+              <p>A new random key is generated each session (and on refresh).</p>
+            </div>
+            <div class="feat">
+              <h3>Privacy</h3>
+              <p>Valid credentials are never displayed in the interface.</p>
+            </div>
+            <div class="feat">
+              <h3>Quick Access</h3>
+              <p>Copy the key or regenerate it with one click.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="wave">
+          <div class="orbs" aria-hidden="true">
+            <div class="orb o1"></div>
+            <div class="orb o2"></div>
+            <div class="orb o3"></div>
+          </div>
+          <div class="copy">
+            <strong>Tip</strong>
+            <span>Enter your username, password, and the displayed security key. If the key is hard to read, tap “New key”.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel form" aria-label="Sign in form">
+        <div class="formHeader">
+          <h2>Admin Sign In</h2>
+          <p>Please enter your credentials and the security key. For safety, valid login values are not shown anywhere on this page.</p>
+        </div>
+
+        <div id="msg" class="msg neutral" role="status" aria-live="polite">
+          Enter details to continue.
+        </div>
+
+        <form id="loginForm" autocomplete="off">
+          <div class="field">
+            <label for="username">Username</label>
+            <div class="inputWrap">
+              <input id="username" name="username" type="text" placeholder="Enter username" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="inputWrap">
+              <input id="password" name="password" type="password" placeholder="Enter password" required />
+            </div>
+          </div>
+
+          <div class="securityBox" aria-label="Security key section">
+            <div class="field" style="margin-top:0;">
+              <label for="securityKeyInput">Security Key</label>
+              <div class="inputWrap">
+                <input id="securityKeyInput" name="securityKeyInput" type="text" placeholder="Type the security key shown below" required />
+              </div>
+            </div>
+
+            <div class="keyRow">
+              <div class="keyChip" title="Security key to type" aria-label="Displayed security key">
+                <span style="opacity:.8;">Key:</span>
+                <span id="securityKey" style="font-weight:800;">—</span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button type="button" class="smallBtn" id="copyKeyBtn">Copy</button>
+                <button type="button" class="smallBtn" id="newKeyBtn">New key</button>
+              </div>
+            </div>
+
+            <div class="foot">
+              The key changes when you press “New key” or refresh the page.
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="toggle" for="remember">
+              <input id="remember" type="checkbox" />
+              <span class="chk" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 6L9 17l-5-5" stroke="#173451" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              Remember me (local)
+            </label>
+
+            <span style="font-size:12px;color:var(--muted);">
+              Secure mode: <strong>On</strong>
+            </span>
+          </div>
+
+          <button class="btn" type="submit">Sign In</button>
+
+          <div class="sep"></div>
+          <div class="foot">
+            This is a front-end demo. Do not use this as real authentication on a live site.
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Note: Valid credentials are intentionally not displayed in the UI.
+    // They are stored only in code for this demo, per request.
+    const VALID_USERNAME = "Admin";
+    const VALID_PASSWORD = "Mortal@123";
+
+    const elKey = document.getElementById("securityKey");
+    const elMsg = document.getElementById("msg");
+    const elForm = document.getElementById("loginForm");
+    const elUser = document.getElementById("username");
+    const elPass = document.getElementById("password");
+    const elKeyInput = document.getElementById("securityKeyInput");
+    const elRemember = document.getElementById("remember");
+    const btnNewKey = document.getElementById("newKeyBtn");
+    const btnCopyKey = document.getElementById("copyKeyBtn");
+
+    function genKey(){
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let out = "";
+      for(let i=0;i<8;i++){
+        out += chars[Math.floor(Math.random()*chars.length)];
+      }
+      return out.slice(0,4) + "-" + out.slice(4);
+    }
+
+    function setMsg(type, text){
+      elMsg.className = "msg " + type;
+      elMsg.textContent = text;
+    }
+
+    function newSecurityKey(){
+      const key = genKey();
+      elKey.textContent = key;
+      // Clear input to reduce confusion
+      elKeyInput.value = "";
+      setMsg("neutral", "New security key generated. Type it to continue.");
+    }
+
+    // Remember username option (localStorage)
+    function loadRemembered(){
+      try{
+        const remembered = localStorage.getItem("remember_admin_username") === "1";
+        const savedUser = localStorage.getItem("remembered_username") || "";
+        elRemember.checked = remembered;
+        if(remembered && savedUser) elUser.value = savedUser;
+      }catch(e){}
+    }
+    function saveRemembered(){
+      try{
+        if(elRemember.checked){
+          localStorage.setItem("remember_admin_username","1");
+          localStorage.setItem("remembered_username", elUser.value || "");
+        }else{
+          localStorage.setItem("remember_admin_username","0");
+          localStorage.removeItem("remembered_username");
+        }
+      }catch(e){}
+    }
+
+    btnNewKey.addEventListener("click", newSecurityKey);
+
+    btnCopyKey.addEventListener("click", async () => {
+      const text = elKey.textContent.trim();
+      try{
+        await navigator.clipboard.writeText(text);
+        setMsg("ok", "Security key copied to clipboard.");
+      }catch(e){
+        // Fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try{ document.execCommand("copy"); setMsg("ok","Security key copied."); }
+        catch(err){ setMsg("bad","Could not copy. Please copy manually."); }
+        document.body.removeChild(ta);
+      }
+    });
+
+    elRemember.addEventListener("change", saveRemembered);
+    elUser.addEventListener("input", () => { if(elRemember.checked) saveRemembered(); });
+
+    elForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const u = (elUser.value || "").trim();
+      const p = elPass.value || "";
+      const k = (elKeyInput.value || "").trim().toUpperCase();
+      const expectedKey = (elKey.textContent || "").trim().toUpperCase();
+
+      if(!u || !p || !k){
+        setMsg("bad", "Please fill in username, password, and security key.");
+        return;
+      }
+      if(k !== expectedKey){
+        setMsg("bad", "Security key does not match. Please try again or generate a new key.");
+        return;
+      }
+      if(u === VALID_USERNAME && p === VALID_PASSWORD){
+        setMsg("ok", "Access granted. Redirecting to dashboard...");
+        saveRemembered();
+
+        // Optional: set a simple flag for dashboard page checks (front-end only)
+        try{ sessionStorage.setItem("admin_authed", "1"); }catch(e){}
+
+        // Redirect to dashboard.html
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 600);
+      }else{
+        setMsg("bad", "Incorrect username or password.");
+      }
+    });
+
+    // init
+    loadRemembered();
+    newSecurityKey();
+  </script>
+</body>
+</html>

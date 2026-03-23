@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dashboard</title>
+  <style>
+    :root{
+      --blue:#6ec6ff;         /* light blue */
+      --blue-2:#e8f7ff;       /* very light blue */
+      --yellow:#ffe08a;       /* relaxing yellow */
+      --orange:#ff9f5a;       /* soft orange */
+      --ink:#153043;
+      --muted:#5b6b78;
+      --card:#ffffffcc;
+      --shadow: 0 14px 40px rgba(12, 46, 74, .18);
+      --radius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--ink);
+      min-height:100vh;
+      background:
+        radial-gradient(1200px 700px at 10% 0%, rgba(110,198,255,.55), transparent 60%),
+        radial-gradient(1000px 600px at 90% 10%, rgba(255,224,138,.55), transparent 55%),
+        radial-gradient(900px 600px at 80% 95%, rgba(255,159,90,.45), transparent 55%),
+        linear-gradient(135deg, var(--blue-2), #fff7e4);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+
+    .wrap{
+      width:min(1100px, 100%);
+      display:grid;
+      gap:18px;
+    }
+
+    header{
+      background: linear-gradient(120deg, rgba(255,255,255,.78), rgba(255,255,255,.55));
+      border:1px solid rgba(255,255,255,.7);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:22px 22px 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    h2{
+      margin:0;
+      font-weight:800;
+      letter-spacing:.2px;
+      font-size: clamp(22px, 2.4vw, 30px);
+    }
+
+    .subtitle{
+      margin:6px 0 0;
+      color:var(--muted);
+      max-width:65ch;
+      line-height:1.35;
+      font-size: 14.5px;
+    }
+
+    .chips{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(21,48,67,.12);
+      color: var(--ink);
+      font-size: 13px;
+      box-shadow: 0 6px 18px rgba(12,46,74,.08);
+      user-select:none;
+    }
+
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: var(--blue);
+      box-shadow: 0 0 0 4px rgba(110,198,255,.25);
+    }
+    .dot.yellow{ background: var(--yellow); box-shadow: 0 0 0 4px rgba(255,224,138,.25);}
+    .dot.orange{ background: var(--orange); box-shadow: 0 0 0 4px rgba(255,159,90,.25);}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap:18px;
+    }
+
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background: linear-gradient(120deg, rgba(255,255,255,.78), rgba(255,255,255,.56));
+      border:1px solid rgba(255,255,255,.7);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .panel h3{
+      margin:0 0 10px;
+      font-size: 15px;
+      letter-spacing:.2px;
+    }
+
+    .actions{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:14px;
+    }
+
+    @media (max-width: 520px){
+      .actions{ grid-template-columns: 1fr; }
+    }
+
+    a.card{
+      text-decoration:none;
+      color:inherit;
+      background: var(--card);
+      border:1px solid rgba(21,48,67,.10);
+      border-radius: 16px;
+      padding:16px 16px 14px;
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      box-shadow: 0 10px 26px rgba(12,46,74,.10);
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    a.card:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px rgba(12,46,74,.16);
+      border-color: rgba(21,48,67,.16);
+    }
+
+    .icon{
+      width:44px;height:44px;border-radius: 14px;
+      display:grid;place-items:center;
+      flex:0 0 auto;
+      color:#0b2a3f;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.9), rgba(255,255,255,.55));
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow: 0 10px 20px rgba(12,46,74,.10);
+    }
+
+    .icon.blue{ background: linear-gradient(135deg, rgba(110,198,255,.55), rgba(255,255,255,.6));}
+    .icon.yellow{ background: linear-gradient(135deg, rgba(255,224,138,.7), rgba(255,255,255,.6));}
+    .icon.orange{ background: linear-gradient(135deg, rgba(255,159,90,.65), rgba(255,255,255,.6));}
+
+    .card h4{
+      margin:0;
+      font-size: 15px;
+      font-weight:800;
+    }
+    .card p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size: 13.5px;
+      line-height:1.25;
+    }
+
+    .badge{
+      position:absolute;
+      top:12px;
+      right:12px;
+      font-size:12px;
+      color:#0e2b40;
+      background: rgba(255,255,255,.75);
+      border:1px solid rgba(21,48,67,.10);
+      border-radius: 999px;
+      padding:6px 10px;
+      box-shadow: 0 8px 18px rgba(12,46,74,.08);
+    }
+
+    .stock{
+      display:grid;
+      gap:12px;
+    }
+
+    .stat{
+      background: rgba(255,255,255,.72);
+      border:1px solid rgba(21,48,67,.10);
+      border-radius: 16px;
+      padding:14px;
+      box-shadow: 0 10px 26px rgba(12,46,74,.10);
+    }
+
+    .stat .row{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .label{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .value{
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+
+    .bar{
+      margin-top:10px;
+      height:10px;
+      border-radius:999px;
+      background: rgba(21,48,67,.08);
+      overflow:hidden;
+      position:relative;
+    }
+    .fill{
+      height:100%;
+      width: 0%;
+      border-radius:999px;
+      background: linear-gradient(90deg, var(--blue), var(--yellow), var(--orange));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+      transition: width .6s ease;
+    }
+
+    .tools{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:12px;
+    }
+
+    button.print{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      padding:12px 14px;
+      border-radius: 14px;
+      font-weight: 800;
+      background: linear-gradient(135deg, rgba(110,198,255,.55), rgba(255,224,138,.65), rgba(255,159,90,.55));
+      color: #0b2a3f;
+      box-shadow: 0 12px 28px rgba(12,46,74,.15);
+      border:1px solid rgba(255,255,255,.55);
+      transition: transform .15s ease, box-shadow .15s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+    }
+    button.print:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 16px 34px rgba(12,46,74,.18);
+    }
+
+    .hint{
+      font-size: 12.5px;
+      color: var(--muted);
+      margin:0;
+    }
+
+    footer{
+      color: rgba(21,48,67,.65);
+      font-size: 12.5px;
+      text-align:center;
+      padding: 4px 0 0;
+    }
+
+    /* Inline SVG icons */
+    svg{display:block}
+  </style>
+</head>
+<body>
+  <!-- Provided base code (kept, enhanced layout + styling) -->
+  <div class="wrap">
+    <header>
+      <div class="top">
+        <div>
+          <h2>Dashboard</h2>
+          <p class="subtitle">Quick access to billing actions, collections, and remaining stock/pieces to sell—designed in light blue, relaxing yellow, and orange tones.</p>
+          <div class="chips" aria-label="Theme">
+            <span class="chip"><span class="dot"></span>Light Blue</span>
+            <span class="chip"><span class="dot yellow"></span>Relaxing Yellow</span>
+            <span class="chip"><span class="dot orange"></span>Soft Orange</span>
+          </div>
+        </div>
+        <div class="chip" title="Tip">Tip: Use the Print button to print bills (wired to print.js)</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel" aria-label="Actions">
+        <h3>Billing & Collection</h3>
+        <div class="actions">
+          <a class="card" href="create.html" aria-label="Create Bill">
+            <span class="icon blue" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M7 3h8l2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" />
+                <path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div>
+              <h4>Create Bill</h4>
+              <p>Create a new bill and save details.</p>
+            </div>
+            <span class="badge">create.html</span>
+          </a>
+
+          <a class="card" href="view.html" aria-label="View Bills">
+            <span class="icon yellow" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M16 16h4v4h-4z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+            <div>
+              <h4>View Bills</h4>
+              <p>Open the list of created bills.</p>
+            </div>
+            <span class="badge">view.html</span>
+          </a>
+
+          <a class="card" href="collected.html" aria-label="Total Collection">
+            <span class="icon orange" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M12 1v22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M17 5.5c0-2-2.2-3.5-5-3.5s-5 1.5-5 3.5 2.2 3.5 5 3.5 5 1.5 5 3.5-2.2 3.5-5 3.5-5-1.5-5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <h4>Total Amount Collected</h4>
+              <p>See total collection and payment summaries.</p>
+            </div>
+            <span class="badge">collected.html</span>
+          </a>
+
+          <div class="card" role="group" aria-label="Print Bill Option" style="cursor:default;">
+            <span class="icon blue" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M7 7V3h10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 17h10v4H7z" stroke="currentColor" stroke-width="2"/>
+                <path d="M6 10h12a3 3 0 0 1 3 3v2h-4v-2H7v2H3v-2a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div style="flex:1;">
+              <h4>Print Bill</h4>
+              <p>Print the current/selected bill using the print handler.</p>
+              <div class="tools">
+                <button class="print" id="printBtn" type="button" aria-label="Print Bill">
+                  <span aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M7 7V3h10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M7 17h10v4H7z" stroke="currentColor" stroke-width="2"/>
+                      <path d="M6 10h12a3 3 0 0 1 3 3v2h-4v-2H7v2H3v-2a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  Print
+                </button>
+                <p class="hint">Connected to <strong>print.js</strong> (loaded below). If print.js exposes <code>printBill()</code>, it will be called.</p>
+              </div>
+            </div>
+            <span class="badge">print.js</span>
+          </div>
+        </div>
+
+        <!-- Provided code snippet (kept for "perfection") -->
+        <div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(21,48,67,.18); color:rgba(21,48,67,.75); font-size:13px;">
+          <div style="font-weight:800; margin-bottom:8px;">Quick Links (Original)</div>
+          <a href="create.html">Create Bill</a><br>
+          <a href="view.html">View Bills</a><br>
+          <a href="collected.html">Total Collection</a>
+        </div>
+      </section>
+
+      <aside class="panel" aria-label="Stock / Pieces Left">
+        <h3>Files / Pieces Left to Sell</h3>
+        <div class="stock">
+          <div class="stat">
+            <div class="row">
+              <div>
+                <div class="label">Total pieces</div>
+                <div class="value" id="totalPieces">120</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="label">Left to sell</div>
+                <div class="value" id="leftPieces">38</div>
+              </div>
+            </div>
+            <div class="bar" aria-label="Remaining pieces progress">
+              <div class="fill" id="progressFill"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px; gap:10px; flex-wrap:wrap;">
+              <div class="chip" title="Sold = Total - Left"><span class="dot orange"></span>Sold: <strong id="soldPieces">82</strong></div>
+              <div class="chip"><span class="dot yellow"></span>Remaining: <strong id="remainPercent">0%</strong></div>
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="label" style="margin-bottom:10px;">Update pieces (demo)</div>
+            <div style="display:grid; grid-template-columns: 1fr; gap:10px;">
+              <label class="chip" style="justify-content:space-between;">
+                <span>Total</span>
+                <input id="totalInput" type="number" min="0" value="120" style="width:110px; padding:8px 10px; border-radius:12px; border:1px solid rgba(21,48,67,.14); outline:none;">
+              </label>
+              <label class="chip" style="justify-content:space-between;">
+                <span>Left</span>
+                <input id="leftInput" type="number" min="0" value="38" style="width:110px; padding:8px 10px; border-radius:12px; border:1px solid rgba(21,48,67,.14); outline:none;">
+              </label>
+              <button type="button" class="print" id="applyStock" style="justify-content:center;">
+                Apply
+              </button>
+              <p class="hint" style="margin:0;">This is only a visual widget on the dashboard page.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>© Dashboard — Billing & Stock Overview</footer>
+  </div>
+
+  <!-- Connect print option with file print.js -->
+  <script src="print.js"></script>
+
+  <script>
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    function updateStock(total, left){
+      total = Number.isFinite(total) ? total : 0;
+      left = Number.isFinite(left) ? left : 0;
+      total = Math.max(0, total);
+      left = clamp(left, 0, total);
+
+      const sold = Math.max(0, total - left);
+      const remainingPct = total === 0 ? 0 : Math.round((left / total) * 100);
+      const fillPct = total === 0 ? 0 : (left / total) * 100;
+
+      document.getElementById('totalPieces').textContent = total;
+      document.getElementById('leftPieces').textContent = left;
+      document.getElementById('soldPieces').textContent = sold;
+      document.getElementById('remainPercent').textContent = remainingPct + "%";
+      document.getElementById('progressFill').style.width = fillPct + "%";
+    }
+
+    // Initialize
+    updateStock(120, 38);
+
+    document.getElementById('applyStock').addEventListener('click', function(){
+      const total = parseInt(document.getElementById('totalInput').value, 10);
+      const left = parseInt(document.getElementById('leftInput').value, 10);
+      updateStock(Number.isFinite(total) ? total : 0, Number.isFinite(left) ? left : 0);
+    });
+
+    // Print button integration:
+    // If print.js defines window.printBill(), we call it.
+    // Otherwise fallback to window.print().
+    document.getElementById('printBtn').addEventListener('click', function(){
+      try{
+        if (typeof window.printBill === 'function'){
+          window.printBill();
+        } else {
+          window.print();
+        }
+      } catch (e){
+        window.print();
+      }
+    });
+  </script>
+</body>
+</html>
