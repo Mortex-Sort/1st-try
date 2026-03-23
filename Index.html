@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Sign In</title>
+
+  <!-- External stylesheet for your 3D effects / professional design -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    :root{
+      --sky: #8fd3ff;
+      --sun: #ffe38a;
+      --orange: #ff9a5a;
+      --deep: #0b1b2b;
+      --card: rgba(255,255,255,.16);
+      --card2: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.28);
+      --shadow: rgba(0,0,0,.22);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --danger: #ff3b66;
+      --ok: #22c55e;
+      --focus: rgba(255,255,255,.22);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      overflow-x:hidden;
+
+      background:
+        radial-gradient(1200px 700px at 15% 20%, rgba(255,227,138,.95), rgba(255,227,138,0) 55%),
+        radial-gradient(900px 650px at 78% 28%, rgba(255,154,90,.90), rgba(255,154,90,0) 58%),
+        radial-gradient(1200px 900px at 40% 90%, rgba(143,211,255,.95), rgba(143,211,255,0) 62%),
+        linear-gradient(180deg, #0b1b2b 0%, #071321 100%);
+      position:relative;
+    }
+
+    /* soft animated background orbs */
+    .orb{
+      position:absolute;
+      inset:auto;
+      border-radius:999px;
+      filter: blur(22px);
+      opacity:.55;
+      pointer-events:none;
+      transform: translate3d(0,0,0);
+      animation: drift 10s ease-in-out infinite;
+      mix-blend-mode: screen;
+    }
+    .orb.one{ width:420px; height:420px; left:-120px; top:40px; background: radial-gradient(circle at 30% 30%, rgba(255,227,138,1), rgba(255,227,138,0) 70%); animation-duration: 12s; }
+    .orb.two{ width:520px; height:520px; right:-180px; top:60px; background: radial-gradient(circle at 40% 40%, rgba(255,154,90,1), rgba(255,154,90,0) 72%); animation-duration: 14s; animation-delay: -2s; }
+    .orb.three{ width:560px; height:560px; left:10%; bottom:-220px; background: radial-gradient(circle at 45% 45%, rgba(143,211,255,1), rgba(143,211,255,0) 70%); animation-duration: 16s; animation-delay: -5s; }
+
+    @keyframes drift{
+      0%,100%{ transform: translate3d(0,0,0) scale(1); }
+      50%{ transform: translate3d(18px,-14px,0) scale(1.04); }
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 32px 18px;
+      position:relative;
+      z-index:1;
+    }
+
+    .shell{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+      align-items:stretch;
+    }
+
+    @media (max-width: 900px){
+      .shell{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      border: 1px solid rgba(255,255,255,.22);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      box-shadow: 0 20px 60px var(--shadow);
+      border-radius: 22px;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .hero{
+      padding: 28px 28px 22px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom: 14px;
+    }
+    .logo{
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.28);
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,0) 65%),
+        linear-gradient(135deg, rgba(143,211,255,.95), rgba(255,227,138,.85), rgba(255,154,90,.9));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 10px 30px rgba(0,0,0,.22);
+    }
+    .brand h1{
+      font-size: 16px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      margin:0;
+      color: rgba(255,255,255,.86);
+    }
+
+    .headline{
+      margin: 14px 0 10px;
+      font-size: clamp(26px, 3vw, 40px);
+      line-height: 1.05;
+      letter-spacing: -.02em;
+    }
+    .sub{
+      margin:0 0 18px;
+      color: var(--muted);
+      max-width: 52ch;
+      line-height:1.55;
+      font-size: 14.5px;
+    }
+
+    .highlights{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    @media (max-width: 520px){
+      .highlights{ grid-template-columns: 1fr; }
+    }
+    .chip{
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      margin-top: 5px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,0) 60%),
+                  linear-gradient(135deg, rgba(143,211,255,1), rgba(255,227,138,1), rgba(255,154,90,1));
+      box-shadow: 0 8px 18px rgba(0,0,0,.22);
+    }
+    .chip b{
+      display:block;
+      font-size: 13px;
+      margin-bottom: 2px;
+      color: rgba(255,255,255,.9);
+    }
+    .chip span{
+      display:block;
+      font-size: 12.5px;
+      color: rgba(255,255,255,.70);
+      line-height: 1.35;
+    }
+
+    .auth{
+      padding: 26px 22px 22px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+    }
+    .auth h2{
+      margin: 0 0 4px;
+      font-size: 18px;
+      letter-spacing: .02em;
+    }
+    .auth p{
+      margin: 0 0 16px;
+      color: rgba(255,255,255,.70);
+      font-size: 13.5px;
+      line-height:1.5;
+    }
+
+    form{
+      display:grid;
+      gap: 10px;
+    }
+
+    label{
+      font-size: 12px;
+      color: rgba(255,255,255,.78);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin: 4px 2px 0;
+    }
+    .hint{
+      font-size: 11.5px;
+      color: rgba(255,255,255,.55);
+      user-select:none;
+    }
+
+    .field{
+      position:relative;
+    }
+    input{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      outline:none;
+      color: rgba(255,255,255,.92);
+      background: linear-gradient(180deg, rgba(15,25,38,.35), rgba(15,25,38,.15));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      transition: border-color .2s ease, box-shadow .2s ease, transform .08s ease;
+    }
+    input::placeholder{ color: rgba(255,255,255,.45); }
+    input:focus{
+      border-color: rgba(255,255,255,.32);
+      box-shadow: 0 0 0 6px var(--focus), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 6px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      cursor:pointer;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 650;
+      letter-spacing: .01em;
+      color: rgba(13,20,30,.92);
+      background: linear-gradient(135deg, rgba(143,211,255,1), rgba(255,227,138,1), rgba(255,154,90,1));
+      box-shadow: 0 14px 30px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.4);
+      transition: transform .08s ease, filter .2s ease;
+      min-width: 150px;
+      text-align:center;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn:hover{ filter: brightness(1.03) saturate(1.05); }
+
+    .ghost{
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      color: rgba(255,255,255,.88);
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: 0 12px 26px rgba(0,0,0,.20);
+      min-width: auto;
+      padding: 12px 14px;
+    }
+
+    .msg{
+      margin-top: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.16);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: rgba(255,255,255,.82);
+      display:none;
+    }
+    .msg.show{ display:block; }
+    .msg.error{ border-color: rgba(255,59,102,.35); }
+    .msg.ok{ border-color: rgba(34,197,94,.35); }
+
+    .foot{
+      margin-top: 12px;
+      color: rgba(255,255,255,.58);
+      font-size: 12px;
+      line-height:1.45;
+    }
+
+    /* subtle grid overlay */
+    .grid{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(closest-side at 50% 30%, rgba(0,0,0,.9), rgba(0,0,0,0));
+      opacity:.35;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+  <div class="orb three"></div>
+
+  <div class="wrap">
+    <div class="shell panel">
+      <div class="grid"></div>
+
+      <section class="hero">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <h1>Welcome</h1>
+        </div>
+
+        <h2 class="headline">Calm. Bright. Professional.</h2>
+        <p class="sub">
+          A relaxing blend of light blue, warm yellow, and soft orange—built as a clean admin landing page with a modern glass look.
+        </p>
+
+        <div class="highlights" aria-label="Highlights">
+          <div class="chip">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <b>Secure Access</b>
+              <span>Admin sign-in gate before entering.</span>
+            </div>
+          </div>
+          <div class="chip">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <b>3D Styling Ready</b>
+              <span>External stylesheet is connected for effects.</span>
+            </div>
+          </div>
+          <div class="chip">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <b>Clean UI</b>
+              <span>Responsive layout with smooth details.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="auth" aria-label="Admin Sign In">
+        <h2>Admin Sign In</h2>
+        <p>Enter your credentials to continue.</p>
+
+        <form id="loginForm" autocomplete="off">
+          <div>
+            <label for="username">Username <span class="hint">Case-sensitive</span></label>
+            <div class="field">
+              <input id="username" name="username" type="text" placeholder="Enter username" required />
+            </div>
+          </div>
+
+          <div>
+            <label for="password">Password <span class="hint">Keep it private</span></label>
+            <div class="field">
+              <input id="password" name="password" type="password" placeholder="Enter password" required />
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn" type="submit" id="signInBtn">Sign In</button>
+            <a class="btn ghost" href="signup.html" aria-label="Go to sign up">Sign Up</a>
+          </div>
+
+          <div id="message" class="msg" role="status" aria-live="polite"></div>
+
+          <div class="foot">
+            Tip: This page validates on the client side. For real security, also validate on your server.
+          </div>
+        </form>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // NOTE: Real security must be enforced server-side.
+    // This page intentionally does not display any credential values.
+
+    const form = document.getElementById('loginForm');
+    const msg = document.getElementById('message');
+
+    // Obfuscated constants (not shown in the UI). This is NOT secure—only to match the requested behavior.
+    const _u = String.fromCharCode(65,100,109,105,110); // "Admin"
+    const _p = String.fromCharCode(77,111,114,116,97,108,64,49,50,51); // "Mortal@123"
+
+    function showMessage(text, type){
+      msg.textContent = text;
+      msg.className = 'msg show ' + (type || '');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+
+      if (u === _u && p === _p) {
+        showMessage('Sign in successful. Redirecting…', 'ok');
+        // Change destination if you have an admin dashboard page
+        setTimeout(() => window.location.href = 'signup.html', 650);
+      } else {
+        showMessage('Invalid username or password.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
