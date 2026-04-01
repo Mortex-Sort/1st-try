@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Bills</title>
+
+<style>
+body{font-family:sans-serif;margin:0;padding:20px;background:#f5f5f5}
+.row{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #ddd}
+button{cursor:pointer;margin-left:5px}
+input,select{margin:5px 0;padding:6px}
+</style>
+</head>
+
+<body>
+
+<h2>All Bills</h2>
+
+<input id="searchInput" placeholder="Search..." />
+<input type="date" id="dateFilter" />
+<select id="sortSelect">
+  <option value="date_desc">Newest</option>
+  <option value="date_asc">Oldest</option>
+  <option value="amount_desc">High → Low</option>
+  <option value="amount_asc">Low → High</option>
+</select>
+
+<button id="refreshBtn">Refresh</button>
+
+<div id="data"></div>
+
+<h3>Edit Bill</h3>
+<input id="editCustomer" placeholder="Customer">
+<input id="editAmount" type="number" placeholder="Amount">
+<input id="editDate" type="date">
+<input id="editStatus" placeholder="Status">
+<input id="editNotes" placeholder="Notes">
+<br>
+<button id="saveEditBtn">Save</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, doc, updateDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* 🔥 YOUR CONFIG (ALREADY ADDED) */
+const firebaseConfig = {
+  apiKey: "AIzaSyBhSGWq8LiC3WR2olbokI_l0XkoVR6H_KY",
+  authDomain: "account-billing-7472a.firebaseapp.com",
+  projectId: "account-billing-7472a",
+  storageBucket: "account-billing-7472a.firebasestorage.app",
+  messagingSenderId: "640274779253",
+  appId: "1:640274779253:web:e04e38d2fd9dede2883c3c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const el = id => document.getElementById(id);
+
+let state = {
+  all: [],
+  filtered: [],
+  selectedId: null
+};
+
+/* 🔹 LOAD DATA */
+async function loadBills(){
+  try{
+    const snap = await getDocs(collection(db,"bills"));
+
+    state.all = snap.docs.map(d => {
+      const data = d.data();
+      return {
+        id: d.id,
+        customer: data.customer || "",
+        amount: Number(data.amount) || 0,
+        date: data.date || "",
+        status: data.status || "",
+        notes: data.notes || ""
+      };
+    });
+
+    applyFilters();
+  }catch(err){
+    console.error("Error:", err);
+    alert("Firestore Error (Check rules)");
+  }
+}
+
+/* 🔹 FILTER */
+function applyFilters(){
+  let data = [...state.all];
+
+  const search = el("searchInput").value.toLowerCase();
+  const date = el("dateFilter").value;
+  const sort = el("sortSelect").value;
+
+  if(date){
+    data = data.filter(b => b.date === date);
+  }
+
+  if(search){
+    data = data.filter(b =>
+      (b.customer + b.notes + b.amount + b.date)
+      .toLowerCase().includes(search)
+    );
+  }
+
+  data.sort(getSort(sort));
+
+  state.filtered = data;
+  render();
+}
+
+/* 🔹 SORT */
+function getSort(type){
+  switch(type){
+    case "date_desc": return (a,b)=> (b.date||"").localeCompare(a.date||"");
+    case "date_asc": return (a,b)=> (a.date||"").localeCompare(b.date||"");
+    case "amount_desc": return (a,b)=> b.amount - a.amount;
+    case "amount_asc": return (a,b)=> a.amount - b.amount;
+    default: return ()=>0;
+  }
+}
+
+/* 🔹 RENDER */
+function render(){
+  const container = el("data");
+  container.innerHTML = "";
+
+  if(state.filtered.length === 0){
+    container.innerHTML = "<p>No bills found</p>";
+    return;
+  }
+
+  state.filtered.forEach(b => {
+    const div = document.createElement("div");
+    div.className = "row";
+
+    div.innerHTML = `
+      <div>
+        <b>${b.customer}</b><br>
+        ${b.date} | ₹${b.amount}
+      </div>
+      <div>
+        <button onclick="editBill('${b.id}')">Edit</button>
+        <button onclick="deleteBill('${b.id}')">Delete</button>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+/* 🔹 EDIT */
+window.editBill = function(id){
+  const b = state.all.find(x => x.id === id);
+  state.selectedId = id;
+
+  el("editCustomer").value = b.customer;
+  el("editAmount").value = b.amount;
+  el("editDate").value = b.date;
+  el("editStatus").value = b.status;
+  el("editNotes").value = b.notes;
+}
+
+/* 🔹 SAVE */
+el("saveEditBtn").onclick = async ()=>{
+  if(!state.selectedId) return alert("Select a bill first");
+
+  await updateDoc(doc(db,"bills",state.selectedId),{
+    customer: el("editCustomer").value,
+    amount: Number(el("editAmount").value),
+    date: el("editDate").value,
+    status: el("editStatus").value,
+    notes: el("editNotes").value
+  });
+
+  loadBills();
+};
+
+/* 🔹 DELETE */
+window.deleteBill = async function(id){
+  if(!confirm("Delete this bill?")) return;
+  await deleteDoc(doc(db,"bills",id));
+  loadBills();
+};
+
+/* 🔹 EVENTS */
+el("searchInput").oninput = applyFilters;
+el("dateFilter").onchange = applyFilters;
+el("sortSelect").onchange = applyFilters;
+el("refreshBtn").onclick = loadBills;
+
+/* 🚀 START */
+loadBills();
+
+</script>
+
+</body>
+</html>
